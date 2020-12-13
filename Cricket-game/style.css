@@ -1,0 +1,70 @@
+td {
+  padding-left: 15px;
+  padding-right: 15px;
+  font-weight: bold;
+}
+
+.game-title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: bold;
+}
+
+body {
+  text-transform: UPPERCASE;
+  /* background: linear-gradient(
+    to right,
+    #007cf0 0%,
+    rgb(133, 92, 92) 45%,
+    #f9cd05 70%
+  );
+  color: #fff; */
+  /* text-shadow: 2px 1px 3px #bab1b1; */
+}
+
+button {
+  text-transform: UPPERCASE;
+}
+div {
+  text-align: center;
+}
+
+.result-display {
+  padding-top: 3rem;
+}
+
+.scoreboard-container {
+  display: flex;
+  justify-content: center;
+}
+
+/* tr:nth-child(even) {
+  background: #fff;
+  color: #222831;
+  font-family: system-ui;
+  border-radius: 5px 5px 0px 0px;
+}
+
+tr:nth-child(odd) {
+  background: #efefef;
+  color: #222831;
+  font-family: system-ui;
+  border-radius: 5px 5px 0px 0px;
+}
+
+tr:nth-child(1) {
+  background: #222831;
+  color: #fff;
+  font-family: system-ui;
+}
+
+td:nth-child(1) {
+  background: #222831;
+  color: #fff;
+  font-family: system-ui;
+  border-radius: 5px 5px 0px 0px;
+}
+
+table {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+} */
