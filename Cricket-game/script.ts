@@ -29,17 +29,19 @@ let nameOfTeamTwoPLayers = [
     'Shardul Thakur',
 ];
 
-let teamOnePlayers = nameOfTeamOnePLayers.map((playerName) => {
-    return new Player(playerName)
+let teamOneId = 1;
+let teamTwoId = 2;
+let teamOnePlayers = nameOfTeamOnePLayers.map((playerName, index) => {
+    return new Player(playerName, index + 1, teamOneId)
 })
 
-let teamTwoPlayers = nameOfTeamTwoPLayers.map((playerName) => {
-    return new Player(playerName)
+let teamTwoPlayers = nameOfTeamTwoPLayers.map((playerName, index) => {
+    return new Player(playerName, index + 1, teamTwoId)
 })
 let teamOneName = 'MI';
 let teamTwoName = 'CSK';
-let teamOne = new Team(teamOnePlayers, teamOneName);
-let teamTwo = new Team(teamTwoPlayers, teamTwoName);
+let teamOne = new Team(teamOnePlayers, teamOneName, teamOneId);
+let teamTwo = new Team(teamTwoPlayers, teamTwoName, teamTwoId);
 
 let game = new Cricketgame(teamOne, teamTwo);
 
