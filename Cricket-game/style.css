@@ -11,15 +11,13 @@ td {
 }
 
 body {
+  height: 100%;
   text-transform: UPPERCASE;
-  /* background: linear-gradient(
-    to right,
-    #007cf0 0%,
-    rgb(133, 92, 92) 45%,
-    #f9cd05 70%
-  );
-  color: #fff; */
-  /* text-shadow: 2px 1px 3px #bab1b1; */
+  background-image: url("background-image.jpg");
+  color: #fff;
+  background-repeat: no-repeat;
+  background-size: cover;
+  text-shadow: 2px 1px 20px #f3e2e2;
 }
 
 button {
@@ -38,33 +36,36 @@ div {
   justify-content: center;
 }
 
-/* tr:nth-child(even) {
+tr:nth-child(even) {
   background: #fff;
-  color: #222831;
+  color: #000000;
   font-family: system-ui;
-  border-radius: 5px 5px 0px 0px;
+  opacity: 0.8;
+  text-shadow: 2px 1px 20px #f3e2e2;
 }
 
 tr:nth-child(odd) {
   background: #efefef;
-  color: #222831;
+  color: #000000;
   font-family: system-ui;
-  border-radius: 5px 5px 0px 0px;
+  opacity: 0.8;
+  text-shadow: 2px 1px 20px #f3e2e2;
 }
 
 tr:nth-child(1) {
   background: #222831;
   color: #fff;
   font-family: system-ui;
+  opacity: 1;
 }
 
 td:nth-child(1) {
   background: #222831;
   color: #fff;
   font-family: system-ui;
-  border-radius: 5px 5px 0px 0px;
+  opacity: 1;
 }
 
 table {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
-} */
+}
