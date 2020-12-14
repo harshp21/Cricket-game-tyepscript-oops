@@ -39,55 +39,18 @@ export class Cricketgame {
     }
 
     public start(): void {
-        let teamNoOne = 1;
-        let teamNoTwo = 2;
         let idOfTeamOne = `${this.teamNoOne.getTeamName()}-bat`;
-        this.battingForTeam(idOfTeamOne, this.teamNoOne, teamNoOne);
+        this.battingForTeam(idOfTeamOne, this.teamNoOne);
 
         let idOfTeamTwo = `${this.teamNoTwo.getTeamName()}-bat`;
-        this.battingForTeam(idOfTeamTwo, this.teamNoTwo, teamNoTwo);
+        this.battingForTeam(idOfTeamTwo, this.teamNoTwo);
 
         let generateResultBtn = (<HTMLInputElement>document.getElementById('generate-result'));
         let hitBtnForTeamOne = (<HTMLInputElement>document.getElementById(idOfTeamOne));
         let hitBtnForTeamTwo = (<HTMLInputElement>document.getElementById(idOfTeamTwo));
         hitBtnForTeamOne.disabled = false;
-        hitBtnForTeamTwo.disabled = true;
+        hitBtnForTeamTwo.disabled = false;
         generateResultBtn.disabled = true;
-    }
-
-    private battingForTeam(teamId: string, team: Team, teamNo: number): void {
-        let ball = 1;
-        let playerNo = 1;
-        let players = team.getPlayers();
-        let hitBtn = (<HTMLInputElement>document.getElementById(teamId));
-        hitBtn.addEventListener('click', () => {
-
-            this.currentBattingTeam = team;
-            let isPlayerOutOfBallsToFace = (ball >= 6);
-            let isLastPlayerBatting = (playerNo === players.length);
-
-            let runs = this.scoreRun();
-            let isPlayerOut = (runs === 0);
-            let runScored = {
-                ballNo: ball,
-                runScored: runs,
-            }
-            players[playerNo - 1].setRuns(runScored);
-            (<HTMLInputElement>document.getElementById(`T${teamNo}B${ball++}P${playerNo}`)).innerHTML = `${runs}`;
-            (<HTMLInputElement>document.getElementById(`${team.getTeamName()}-score`)).innerHTML = `${team.calculateTotalTeamScore()}`;
-
-            let isScoredBeenChasedDown = this.teamNoOne.getTotalTeamScore() < this.teamNoTwo.getTotalTeamScore();
-
-            if (((isPlayerOutOfBallsToFace || isPlayerOut) && isLastPlayerBatting) || isScoredBeenChasedDown) {
-                hitBtn.removeEventListener('click', () => { });
-                this.declareInnings(teamId);
-                this.isInningsCompleted = true;
-            }
-            if (isPlayerOutOfBallsToFace || isPlayerOut) {
-                ball = 1;
-                playerNo++;
-            }
-        })
     }
 
     private scoreRun(): number {
@@ -95,18 +58,36 @@ export class Cricketgame {
         return runsPossiblePerBall[Math.floor(Math.random() * runsPossiblePerBall.length)];
     }
 
-    private declareInnings(teamId: string): void {
-        this.isInningsCompleted = true;
-        let idOfTeamBattingFirst = `${this.teamNoOne.getTeamName()}-bat`;
-        let idOfTeamBattingSecond = `${this.teamNoTwo.getTeamName()}-bat`;
+    private battingForTeam(teamId: string, team: Team): void {
+        let ball = 1;
+        let playerNo = 1;
+        let players = team.getPlayers();
         let hitBtn = (<HTMLInputElement>document.getElementById(teamId));
-        hitBtn.disabled = true;
-        if (teamId === idOfTeamBattingFirst) {
-            (<HTMLInputElement>document.getElementById(idOfTeamBattingSecond)).disabled = false;
-        } else if (teamId === idOfTeamBattingSecond) {
-            let generateResultBtn = (<HTMLInputElement>document.getElementById('generate-result'));
-            generateResultBtn.disabled = false;
-        }
+        hitBtn.addEventListener('click', () => {
+            let runs = this.scoreRun();
+            let isPlayerOut = (runs === 0);
+            let isPlayerOutOfBallsToFace = (ball >= 6);
+            let isLastPlayerBatting = (playerNo >= team.getPlayers().length);
+            let isScoredBeenChasedDown = this.teamNoOne.getTotalTeamScore() < this.teamNoTwo.getTotalTeamScore();
+
+            if (!(playerNo > team.getPlayers().length)) {
+                players[playerNo - 1].hitRun(team, ball++, runs);
+            }
+            if (((isPlayerOutOfBallsToFace || isPlayerOut) && isLastPlayerBatting) || isScoredBeenChasedDown) {
+                hitBtn.removeEventListener('click', () => { });
+                team.declareInnings();
+                hitBtn.disabled = true;
+                this.isInningsCompleted = true;
+            }
+            if (isPlayerOutOfBallsToFace || isPlayerOut) {
+                ball = 1;
+                playerNo++;
+            }
+            if ((team === this.teamNoTwo) && (isScoredBeenChasedDown || ((isPlayerOutOfBallsToFace || isPlayerOut) && isLastPlayerBatting))) {
+                let generateResultBtn = (<HTMLInputElement>document.getElementById('generate-result'));
+                generateResultBtn.disabled = false;
+            }
+        })
     }
 
     private generateResult(): void {
@@ -140,8 +121,7 @@ export class Cricketgame {
                 this.timerCount--;
                 (<HTMLInputElement>document.getElementById('timer')).innerHTML = `${this.timerCount}`;
                 if (this.timerCount <= 0 || this.isInningsCompleted) {
-                    let teamId = `${this.currentBattingTeam.getTeamName()}-bat`;
-                    this.declareInnings(teamId);
+                    this.currentBattingTeam.declareInnings();
                     clearInterval(timer);
                     this.resetTimer();
                     this.isInningsCompleted = false;
@@ -172,11 +152,11 @@ export class Cricketgame {
         let gameTeamTotalContainer = document.createElement('div');
         gameTeamTotalContainer.classList.add('row');
 
-        let teamOneTotalContainer = this.battingContainerDOMCreation(this.teamNoOne.getTeamName());
+        let teamOneTotalContainer = this.battingContainerDOMCreation(this.teamNoOne);
 
         let timerContainer = this.displayTimerDOMCreation();
 
-        let teamTwoTotalContainer = this.battingContainerDOMCreation(this.teamNoTwo.getTeamName());
+        let teamTwoTotalContainer = this.battingContainerDOMCreation(this.teamNoTwo);
 
         gameTeamTotalContainer.append(teamOneTotalContainer, timerContainer, teamTwoTotalContainer);
         return gameTeamTotalContainer;
@@ -222,19 +202,19 @@ export class Cricketgame {
         let hr = document.createElement('hr');
         return hr;
     }
-    private battingContainerDOMCreation(teamName: string): HTMLElement {
+    private battingContainerDOMCreation(team: Team): HTMLElement {
         let teamOneTotalContainer = document.createElement('div');
         teamOneTotalContainer.classList.add('col-lg-5');
 
         let teamScoreTitle = document.createElement('h3');
-        teamScoreTitle.innerHTML = `${teamName} Score`;
+        teamScoreTitle.innerHTML = `${team.getTeamName()} Score`;
 
         let totalTeamScore = document.createElement('h3');
-        totalTeamScore.id = `${teamName}-score`;
+        totalTeamScore.id = `T${team.getTeamId()}-score`;
         totalTeamScore.innerHTML = '0';
 
         let hitBtn = document.createElement('button');
-        hitBtn.id = `${teamName}-bat`;
+        hitBtn.id = `${team.getTeamName()}-bat`;
         hitBtn.innerHTML = 'HIT';
         hitBtn.onclick = () => {
             this.handleTimer();
@@ -268,43 +248,7 @@ export class Cricketgame {
         let scoreboardTitle = document.createElement('h5');
         scoreboardTitle.innerHTML = `${team.getTeamName()} Scoreboard`;
 
-        let scoreboard = document.createElement("table");
-        scoreboard.border = '2px';
-        scoreboard.style.padding = '5px';
-        scoreboard.id = `${team.getTeamName()}-scoreboard`;
-        let scoreboardContent = document.createElement("tbody");
-
-        let scoreboardHeader = [`${team.getTeamName()}`, 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'TOTAL'];
-
-        let scoreboardHeaderRow = document.createElement('tr');
-        scoreboardHeader.forEach((header) => {
-            let scoreboardHeaderData = document.createElement('td');
-            scoreboardHeaderData.innerHTML = header;
-            scoreboardHeaderRow.appendChild(scoreboardHeaderData);
-        })
-
-        scoreboardContent.appendChild(scoreboardHeaderRow);
-
-        let scoreboardData = ['BALL1', 'BALL2', 'BALL3', 'BALL4', 'BALL5', 'BALL6'];
-        team.getPlayers().forEach((player, playerCount) => {
-            let scoreboardPlayerRow = document.createElement('tr');
-            let scoreBoardPlayerData = document.createElement('td');
-            scoreBoardPlayerData.innerHTML = player.getPlayerName();
-            scoreboardPlayerRow.appendChild(scoreBoardPlayerData);
-
-            scoreboardData.forEach((data, ballCount) => {
-                let scoreBoardPlayerData = document.createElement('td');
-                scoreBoardPlayerData.id = `T${teamNo}B${ballCount + 1}P${playerCount + 1}`;
-                scoreboardPlayerRow.appendChild(scoreBoardPlayerData);
-            })
-
-            let scoreboardPlayerTotal = document.createElement('td');
-            scoreboardPlayerTotal.id = `T${teamNo}P${playerCount + 1}-total`;
-            scoreboardPlayerRow.appendChild(scoreboardPlayerTotal);
-            scoreboardContent.appendChild(scoreboardPlayerRow);
-        })
-        scoreboard.append(scoreboardContent)
-        teamScoreboardContainer.append(scoreboard);
+        teamScoreboardContainer.append(team.getDomElement());
         return teamScoreboardContainer;
     }
 
